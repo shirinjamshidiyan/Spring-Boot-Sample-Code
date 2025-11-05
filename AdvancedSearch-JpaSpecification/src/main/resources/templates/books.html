@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-light">
+
+<div class="container mt-4">
+
+    <h2 class="mb-3 text-center">📚 Advanced Book Search</h2>
+
+    <!-- Search Form -->
+    <div class="card p-4 mb-5 shadow-sm border-primary">
+<!--        <h5 class="mb-3 text-center fw-bold text-primary">🔍 Advanced Search options:</h5>-->
+        <form th:action="@{/books}" th:object="${search}" method="get">
+<!--            Error message display-->
+            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                <ul class="mb-0">
+                    <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                </ul>
+            </div>
+
+<!--            Search form part-->
+            <div class="row g-2 mb-2">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small">Title</label>
+                    <input th:field="*{title}" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small">Genre</label>
+                    <select th:field="*{genre}" class="form-select form-select-sm">
+                        <option value="">All Genres</option>
+                        <option th:each="g : ${genres}" th:value="${g}" th:text="${g}"></option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small">Author</label>
+                    <input th:field="*{author}" class="form-control form-control-sm" >
+                </div>
+            </div>
+
+            <div class="row g-2 mb-2">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small">Publisher</label>
+                    <select th:field="*{publisher}" class="form-select form-select-sm">
+                        <option value="">All Publishers</option>
+                        <option th:each="p : ${publishers}" th:value="${p}" th:text="${p}"></option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small">Min Price</label>
+                    <input th:field="*{minPrice}" type="number" step="0.01" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small">Max Price</label>
+                    <input th:field="*{maxPrice}" type="number" step="0.01" class="form-control form-control-sm">
+                </div>
+            </div>
+
+            <div class="row g-2 mb-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small">Publish Year</label>
+                    <input th:field="*{publishYear}" type="number" class="form-control form-control-sm" placeholder="e.g. 2020">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small">Availability</label>
+                    <select th:field="*{availability}" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        <option value="true">Available</option>
+                        <option value="false">Unavailable</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small d-block">Combine filters</label>
+                    <div class="form-check form-check-inline">
+                        <input th:field="*{operator}" type="radio" value="AND" class="form-check-input">
+                        <label class="form-check-label small">Match all conditions (AND)</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input th:field="*{operator}" type="radio" value="OR" class="form-check-input">
+                        <label class="form-check-label small">Match any condition (OR)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary btn-sm px-4">Search</button>
+                <a th:href="@{/books}" class="btn btn-secondary btn-sm ms-2">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Search Results-->
+    <table class="table table-striped table-bordered mt-4">
+        <thead class="table-light">
+        <tr>
+<!--            Title heaader-->
+            <th>
+                <a th:href="@{/books(
+                page=${page.number},
+                size=${page.size},
+                sort='title,' + (${sortDir == 'asc' ? 'desc' : 'asc'}),
+                title=${search.title},
+                genre=${search.genre},
+                author=${search.author},
+                publisher=${search.publisher},
+                minPrice=${search.minPrice},
+                maxPrice=${search.maxPrice},
+                publishYear=${search.publishYear},
+                available=${search.availability},
+                operator=${search.operator}
+            )}">
+                    Title
+                    <span th:if="${sortBy == 'title'}"
+                          th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
+                </a>
+            </th>
+<!--            Genre header-->
+            <th>
+                <a th:href="@{/books(
+                page=${page.number},
+                size=${page.size},
+                sort='genre,' + (${sortDir == 'asc' ? 'desc' : 'asc'}),
+                title=${search.title},
+                genre=${search.genre},
+                author=${search.author},
+                publisher=${search.publisher},
+                minPrice=${search.minPrice},
+                maxPrice=${search.maxPrice},
+                publishYear=${search.publishYear},
+                available=${search.availability},
+                operator=${search.operator}
+            )}">
+                    Genre
+                    <span th:if="${sortBy == 'genre'}"
+                          th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
+                </a>
+            </th>
+<!--            Authors header-->
+            <th>Authors</th>
+<!--            Publisher header-->
+            <th>
+                <a th:href="@{/books(
+                page=${page.number},
+                size=${page.size},
+                sort='publisher,' + (${sortDir == 'asc' ? 'desc' : 'asc'}),
+                title=${search.title},
+                genre=${search.genre},
+                author=${search.author},
+                publisher=${search.publisher},
+                minPrice=${search.minPrice},
+                maxPrice=${search.maxPrice},
+                publishYear=${search.publishYear},
+                available=${search.availability},
+                operator=${search.operator}
+            )}">
+                    Publisher
+                    <span th:if="${sortBy == 'publisher'}"
+                          th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
+                </a>
+            </th>
+<!--            Price header-->
+            <th>
+                <a th:href="@{/books(
+                page=${page.number},
+                size=${page.size},
+                sort='price,' + (${sortDir == 'asc' ? 'desc' : 'asc'}),
+                title=${search.title},
+                genre=${search.genre},
+                author=${search.author},
+                publisher=${search.publisher},
+                minPrice=${search.minPrice},
+                maxPrice=${search.maxPrice},
+                publishYear=${search.publishYear},
+                available=${search.availability},
+                operator=${search.operator}
+            )}">
+                    Price
+                    <span th:if="${sortBy == 'price'}"
+                          th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
+                </a>
+            </th>
+<!--            Availability header-->
+            <th>Available</th>
+<!--            PublishYear header-->
+            <th>year</th>
+        </tr>
+        </thead>
+
+
+
+        <tbody>
+        <tr th:each="book : ${page.content}">
+            <td th:text="${book.title}"></td>
+            <td th:text="${book.genre}"></td>
+            <td th:text="${#strings.arrayJoin(book.authors, ', ')}"></td>
+            <td th:text="${book.publisherName}"></td>
+            <td th:text="${book.price}"></td>
+            <td th:text="${book.availability ? '✅' : '❌'}"></td>
+            <td th:text="${book.publishYear}"></td>
+        </tr>
+        <tr th:if="${page.content.empty}">
+            <td colspan="7" class="text-center text-muted">No results found for current search</td>
+        </tr>
+        </tbody>
+    </table>
+
+<!--     Pagination Part-->
+    <div class="pagination" th:if="${page.totalElements > 0}">
+        <ul style="list-style:none; display:flex; gap:6px;">
+
+            <!--Prev link-->
+            <li th:if="${page.hasPrevious()}">
+                <a th:href="@{/books(
+                page=${page.number - 1},
+                size=${page.size},
+                sort=${param.sort},
+                title=${search.title},
+                genre=${search.genre},
+                author=${search.author},
+                publisher=${search.publisher},
+                minPrice=${search.minPrice},
+                maxPrice=${search.maxPrice},
+                publishYear=${search.publishYear},
+                available=${search.availability},
+                operator=${search.operator}
+            )}">Prev</a>
+            </li>
+
+            <!--First Page-->
+            <li th:if="${pageRange != null and !pageRange.isEmpty() and pageRange[0] > 1}">
+                <a th:href="@{/books(
+                page=0,
+                size=${page.size},
+                sort=${param.sort},
+                title=${search.title},
+                genre=${search.genre},
+                author=${search.author},
+                publisher=${search.publisher},
+                minPrice=${search.minPrice},
+                maxPrice=${search.maxPrice},
+                publishYear=${search.publishYear},
+                available=${search.availability},
+                operator=${search.operator}
+            )}">1</a>
+                <span>...</span>
+            </li>
+
+            <!-- Middle pages -->
+            <li th:each="pageNum : ${pageRange}">
+                <a th:if="${pageNum != page.number + 1}"
+                   th:href="@{/books(
+                    page=${pageNum - 1},
+                    size=${page.size},
+                    sort=${param.sort},
+                    title=${search.title},
+                    genre=${search.genre},
+                    author=${search.author},
+                    publisher=${search.publisher},
+                    minPrice=${search.minPrice},
+                    maxPrice=${search.maxPrice},
+                    publishYear=${search.publishYear},
+                    available=${search.availability},
+                    operator=${search.operator}
+                )}"
+                   th:text="${pageNum}"></a>
+                <span th:if="${pageNum == page.number + 1}" th:text="${pageNum}" style="font-weight:bold;"></span>
+            </li>
+
+            <!-- if there is any page remain.. -->
+            <li th:if="${pageRange != null and !pageRange.isEmpty() and pageRange[pageRange.size()-1] < page.totalPages}">
+                <span>...</span>
+                <a th:href="@{/books(
+                page=${page.totalPages - 1},
+                size=${page.size},
+                sort=${param.sort},
+                title=${search.title},
+                genre=${search.genre},
+                author=${search.author},
+                publisher=${search.publisher},
+                minPrice=${search.minPrice},
+                maxPrice=${search.maxPrice},
+                publishYear=${search.publishYear},
+                available=${search.availability},
+                operator=${search.operator}
+            )}"
+                   th:text="${page.totalPages}"></a>
+            </li>
+
+            <!-- Next Link -->
+            <li th:if="${page.hasNext()}">
+                <a th:href="@{/books(
+                page=${page.number + 1},
+                size=${page.size},
+                sort=${param.sort},
+                title=${search.title},
+                genre=${search.genre},
+                author=${search.author},
+                publisher=${search.publisher},
+                minPrice=${search.minPrice},
+                maxPrice=${search.maxPrice},
+                publishYear=${search.publishYear},
+                available=${search.availability},
+                operator=${search.operator}
+            )}">Next</a>
+            </li>
+
+        </ul>
+    </div>
+
+
+</div>
+
+</body>
+</html>
