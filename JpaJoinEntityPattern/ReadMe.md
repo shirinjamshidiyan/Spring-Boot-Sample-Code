@@ -11,7 +11,7 @@ soft delete, validation, and consistent error handling.
 ## Key Concepts
 
 - **Join Entity Pattern**  
-  Product–Category relationship is modeled explicitly via `ProductCategory`
+  Product–Category relationship is modeled explicitly via `ProductCategory`entity (instead of @ManyToMany)
 
 - **Partial Update (PATCH)**  
   Only provided fields are updated, null values are ignored
