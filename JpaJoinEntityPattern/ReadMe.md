@@ -17,7 +17,7 @@ soft delete, validation, and consistent error handling.
   Only provided fields are updated, null values are ignored
 
 - **Soft Delete**  
-  Products are logically deleted and automatically filtered from queries
+  Products are logically deleted and automatically filtered from queries (using @SQLDelete and @Where)
 
 - **Validation**  
   Request body, path variables, and query parameters are validated
@@ -37,6 +37,6 @@ soft delete, validation, and consistent error handling.
  - Spring Data JPA 
  - Hibernate Validation 
  - MapStruct 
- - H2 H2 in-memory database
+ - H2 in-memory database
 
 
